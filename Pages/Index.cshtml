@@ -1,0 +1,10 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <button hx-get="/Index?handler=hello">Click Me!</button>
+    <div id="message"></div>
+</div>
