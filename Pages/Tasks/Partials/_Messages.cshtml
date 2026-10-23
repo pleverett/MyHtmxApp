@@ -1,0 +1,27 @@
+@model string?
+
+@*
+    Messages Fragment
+    =================
+
+    Purpose:
+    - Displays success/error messages to the user
+    - Wraps content in a stable #messages container
+
+    Design notes:
+    - The outer <div id="messages"> MUST always render, even when empty
+    - This ensures htmx always has a target to swap into
+    - In later labs, htmx will swap this entire element using hx-swap="outerHTML"
+
+    Model:
+    - string? message - The message to display, or null for empty state
+*@
+
+<div id="messages">
+    @if (!string.IsNullOrWhiteSpace(Model))
+    {
+        <div class="alert alert-success" role="alert">
+            @Model
+        </div>
+    }
+</div>

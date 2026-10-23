@@ -1,0 +1,65 @@
+@page
+@model MyHtmxApp.Pages.Tasks.IndexModel
+@{
+    ViewData["Title"] = "Tasks";
+}
+
+<h1>Tasks</h1>
+
+@* Messages region - will become #messages fragment *@
+<div id="messages">
+    @if (!string.IsNullOrWhiteSpace(Model.FlashMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @Model.FlashMessage
+        </div>
+    }
+</div>
+
+<div class="row">
+    @* Form region - will become #task-form fragment *@
+    <div class="col-md-5">
+        <h2 class="h5">Add a Task</h2>
+        <div id="task-form">
+            <form method="post" asp-page-handler="Create">
+                <div class="mb-3">
+                    <label class="form-label" for="title">Task Title</label>
+                    <input id="title" class="form-control" asp-for="Input.Title"
+                        placeholder="e.g., Add htmx to Razor Pages" />
+                    <span class="text-danger" asp-validation-for="Input.Title"></span>
+                </div>
+                <button class="btn btn-primary" type="submit">Add Task</button>
+            </form>
+        </div>
+    </div>
+
+    @* List region - will become #task-list fragment *@
+    <div class="col-md-7">
+        <h2 class="h5">Current Tasks</h2>
+        <div id="task-list">
+            @if (Model.Tasks.Count == 0)
+            {
+                <p class="text-muted">No tasks yet.</p>
+            }
+            else
+            {
+                <ul class="list-group">
+                    @foreach (var task in Model.Tasks)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@task.Title</span>
+                            @if (task.IsDone)
+                            {
+                                <span class="badge bg-success">Done</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

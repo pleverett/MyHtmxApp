@@ -1,0 +1,33 @@
+@model MyHtmxApp.Pages.Tasks.IndexModel
+
+@*
+    Task Form Fragment
+    ==================
+
+    Purpose:
+    - Renders the "Create Task" form
+    - Handles validation error display
+    - Wraps content in a stable #task-form container
+
+    Design notes:
+    - We pass the entire IndexModel as the model because we need:
+        - Input.Title for the field value
+        - ModelState for validation messages
+    - The form uses asp-page-handler="Create" which generates ?handler=Create
+    - We are NOT adding htmx attributes yet—that comes in Lab 2
+
+    Fragment contract:
+    - Root element: <div id="task-form">
+    - This ID is the "contract" for htmx targeting
+*@
+
+<div id="task-form">
+    <form method="post" asp-page-handler="Create">
+        <div class="mb-3">
+            <label class="form-label" for="title">Task Title</label>
+            <input id="title" class="form-control" asp-for="Input.Title" placeholder="e.g., Add htmx to Razor Pages" />
+            <span class="text-danger" asp-validation-for="Input.Title"></span>
+        </div>
+        <button class="btn btn-primary" type="submit">Add Task</button>
+    </form>
+</div>
