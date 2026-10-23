@@ -4,59 +4,56 @@
     ViewData["Title"] = "Tasks";
 }
 
+@*
+    Tasks Page - Fragment Composition
+    ==================================
+
+    This page demonstrates the "Fragment First" architecture:
+    - Each region is rendered by a dedicated partial
+    - Each partial has a stable root element ID
+    - The page is a composition of independent fragments
+
+    Fragment inventory:
+    - #messages    -> Partials/_Messages (flash message display)
+    - #task-form   -> Partials/_TaskForm (create task form)
+    - #task-list   -> Partials/_TaskList (task list display)
+
+    In later labs, htmx will target these IDs to swap individual fragments
+    without reloading the entire page.
+*@
+
 <h1>Tasks</h1>
 
-@* Messages region - will become #messages fragment *@
-<div id="messages">
-    @if (!string.IsNullOrWhiteSpace(Model.FlashMessage))
-    {
-        <div class="alert alert-success" role="alert">
-            @Model.FlashMessage
-        </div>
-    }
-</div>
+@*
+    Messages Fragment
+    -----------------
+    Displays success/error messages.
+    Model: FlashMessage (string?)
+*@
+<partial name="Partials/_Messages" model="Model.FlashMessage" />
+
 
 <div class="row">
-    @* Form region - will become #task-form fragment *@
+    @*
+        Form Fragment
+        -------------
+        Create task form with validation.
+        Model: Full IndexModel (needs Input + ModelState)
+    *@
     <div class="col-md-5">
         <h2 class="h5">Add a Task</h2>
-        <div id="task-form">
-            <form method="post" asp-page-handler="Create">
-                <div class="mb-3">
-                    <label class="form-label" for="title">Task Title</label>
-                    <input id="title" class="form-control" asp-for="Input.Title"
-                        placeholder="e.g., Add htmx to Razor Pages" />
-                    <span class="text-danger" asp-validation-for="Input.Title"></span>
-                </div>
-                <button class="btn btn-primary" type="submit">Add Task</button>
-            </form>
-        </div>
+        <partial name="Partials/_TaskForm" model="Model" />
     </div>
 
-    @* List region - will become #task-list fragment *@
+    @*
+        List Fragment
+        -------------
+        Displays all tasks.
+        Model: Tasks collection (IReadOnlyList<TaskItem>)
+    *@
     <div class="col-md-7">
         <h2 class="h5">Current Tasks</h2>
-        <div id="task-list">
-            @if (Model.Tasks.Count == 0)
-            {
-                <p class="text-muted">No tasks yet.</p>
-            }
-            else
-            {
-                <ul class="list-group">
-                    @foreach (var task in Model.Tasks)
-                    {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>@task.Title</span>
-                            @if (task.IsDone)
-                            {
-                                <span class="badge bg-success">Done</span>
-                            }
-                        </li>
-                    }
-                </ul>
-            }
-        </div>
+        <partial name="Partials/_TaskList" model="Model.Tasks" />
     </div>
 </div>
 
