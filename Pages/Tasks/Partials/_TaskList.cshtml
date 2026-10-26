@@ -23,18 +23,25 @@
 <div id="task-list">
     @if (Model.Count == 0)
     {
-        <p class="text-muted">No tasks yet.</p>
+        <p class="text-muted">No tasks yet. Add one to establish a baseline</p>
     }
     else
     {
-        <ul class="list-group">
+        <ul class="list-group list-group-flush">
             @foreach (var task in Model)
             {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>@task.Title</span>
+                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                    <div class="d-flex flex-column">
+                        <strong>@task.Title</strong>
+                        <span class="small text-muted">Created @task.CreatedUtc.ToLocalTime().ToString("g")</span>
+                    </div>
                     @if (task.IsDone)
                     {
                         <span class="badge bg-success">Done</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-secondary">Open</span>
                     }
                 </li>
             }

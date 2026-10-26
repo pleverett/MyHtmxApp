@@ -44,4 +44,9 @@ public static class InMemoryTaskStore
         _tasks.Add(item);
         return item;
     }
+
+    public static void Reset()
+    {
+        _tasks.Clear();
+    }
 }

@@ -1,60 +1,87 @@
 @page
 @model MyHtmxApp.Pages.Tasks.IndexModel
 @{
-    ViewData["Title"] = "Tasks";
+    ViewData["Title"] = "Tasks • htmx Razor Pages Workshop";
 }
 
-@*
-    Tasks Page - Fragment Composition
-    ==================================
+<div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="mb-1">Tasks</h1>
+        <p class="text-muted mb-0">Lab-friendly page with clear fragment boundaries.</p>
+    </div>
+    <form method="post" asp-page-handler="Reset" class="m-0">
+        <button class="btn btn-sm btn-outline-secondary" type="submit">Reset</button>
+    </form>
+</div>
 
-    This page demonstrates the "Fragment First" architecture:
-    - Each region is rendered by a dedicated partial
-    - Each partial has a stable root element ID
-    - The page is a composition of independent fragments
-
-    Fragment inventory:
-    - #messages    -> Partials/_Messages (flash message display)
-    - #task-form   -> Partials/_TaskForm (create task form)
-    - #task-list   -> Partials/_TaskList (task list display)
-
-    In later labs, htmx will target these IDs to swap individual fragments
-    without reloading the entire page.
-*@
-
-<h1>Tasks</h1>
-
-@*
-    Messages Fragment
-    -----------------
-    Displays success/error messages.
-    Model: FlashMessage (string?)
-*@
 <partial name="Partials/_Messages" model="Model.FlashMessage" />
 
-
-<div class="row">
-    @*
-        Form Fragment
-        -------------
-        Create task form with validation.
-        Model: Full IndexModel (needs Input + ModelState)
-    *@
-    <div class="col-md-5">
-        <h2 class="h5">Add a Task</h2>
-        <partial name="Partials/_TaskForm" model="Model" />
+<div class="row g-3 g-md-4">
+    <div class="col-lg-5">
+        <div class="card workshop-card h-100">
+            <div class="card-body">
+                <div class="workshop-kicker">Fragment boundary</div>
+                <h2 class="h5">Create</h2>
+                <partial name="Partials/_TaskForm" model="Model" />
+            </div>
+        </div>
     </div>
 
-    @*
-        List Fragment
-        -------------
-        Displays all tasks.
-        Model: Tasks collection (IReadOnlyList<TaskItem>)
-    *@
-    <div class="col-md-7">
-        <h2 class="h5">Current Tasks</h2>
-        <partial name="Partials/_TaskList" model="Model.Tasks" />
+    <div class="col-lg-7">
+        <div class="card workshop-card h-100">
+            <div class="card-body">
+                <div class="workshop-kicker">Fragment boundary</div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h2 class="h5 mb-0">List</h2>
+
+                    <div class="d-flex align-items-center gap-2">
+                        @* Loading indicator - hidden by default, shown during htmx requests *@
+                        <div id="task-loading"
+                            class="htmx-indicator spinner-border spinner-border-sm text-secondary"
+                            role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+
+                        <div class="btn-group btn-group-sm">
+                            @* Refresh all tasks *@
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    hx-get="?handler=List"
+                                    hx-target="#task-list"
+                                    hx-swap="outerHTML"
+                                    hx-indicator="#task-loading">
+                                Refresh All
+                            </button>
+
+                            @* Refresh with limit using hx-vals *@
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    hx-get="?handler=List"
+                                    hx-vals='{"take": 5}'
+                                    hx-target="#task-list"
+                                    hx-swap="outerHTML"
+                                    hx-indicator="#task-loading">
+                                Top 5
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <partial name="Partials/_TaskList" model="Model.Tasks" />
+            </div>
+        </div>
     </div>
+</div>
+
+@*
+    Invisible listeners for htmx events
+    These elements respond to HX-Trigger headers from the server
+*@
+<div hx-get="?handler=EmptyForm"
+    hx-trigger="clearForm from:body"
+    hx-target="#task-form"
+    hx-swap="outerHTML">
 </div>
 
 @section Scripts {
