@@ -4,6 +4,24 @@
     ViewData["Title"] = "Tasks • htmx Razor Pages Workshop";
 }
 
+@*
+    Fragment Inventory
+    ==================
+
+    | Target ID      | Partial                  | Handlers That Return It                |
+    |----------------|--------------------------|----------------------------------------|
+    | #messages      | Partials/_Messages       | OnGetMessages                          |
+    | #task-form     | Partials/_TaskForm       | OnGetEmptyForm, OnPostCreate (invalid) |
+    | #task-list     | Partials/_TaskList       | OnGetList, OnPostCreate (success)      |
+    | #task-details  | Partials/_TaskDetails    | OnGetDetails                           |
+
+    Response Rules:
+    - Non-htmx → Page() or RedirectToPage()
+    - htmx → Fragment("...", model)
+    - Validation error → HX-Retarget to form
+    - Server error → 200 + HX-Retarget to messages
+*@
+
 <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-2 mb-3">
     <div>
         <h1 class="mb-1">Tasks</h1>
@@ -75,9 +93,27 @@
 </div>
 
 @*
-    Invisible listeners for htmx events
-    These elements respond to HX-Trigger headers from the server
+    Event Listeners
+    ===============
+
+    These invisible elements respond to HX-Trigger events from the server.
+    When the server sends "HX-Trigger: showMessage,clearForm", these listeners
+    fire their respective requests.
+
+    Pattern benefits:
+    - Keeps markup clean (form doesn't need to know about messages)
+    - Server controls behavior through headers
+    - Each concern is handled independently
 *@
+
+@* Listener: Refresh messages when showMessage event fires *@
+<div hx-get="?handler=Messages"
+    hx-trigger="showMessage from:body"
+    hx-target="#messages"
+    hx-swap="outerHTML">
+</div>
+
+@* Listener: Reset form when clearForm event fires *@
 <div hx-get="?handler=EmptyForm"
     hx-trigger="clearForm from:body"
     hx-target="#task-form"

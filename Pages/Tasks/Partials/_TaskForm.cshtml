@@ -8,22 +8,21 @@
     Swap: outerHTML
     Returned by: OnGetEmptyForm, OnPostCreate (on validation error)
 
-    htmx attributes:
-    - hx-post: Send POST request to this URL
-    - hx-target: Where to swap the response (#task-list on success)
-    - hx-swap: How to swap (outerHTML replaces the entire target element)
-    - hx-indicator: Show loading spinner during request
+    htmx attributes on form:
+    - hx-post: Submit to Create handler
+    - hx-target: Update #task-list on success
+    - hx-swap: Replace entire target element
+    - hx-indicator: Show loading spinner
 
-    On successful submit:
-    - Server returns _TaskList partial
-    - htmx swaps it into #task-list
-    - Server sends HX-Trigger: clearForm
-    - Listener fetches empty form and swaps into #task-form
+    htmx attributes on Title input:
+    - hx-post: Validate on keystroke
+    - hx-trigger: Debounced keyup (500ms delay)
+    - hx-target: Update only #title-validation
+    - hx-include: Send form fields (for antiforgery)
 
-    On validation error:
-    - Server returns _TaskForm partial with errors (this file)
-    - Server sends HX-Retarget: #task-form
-    - htmx swaps form with validation errors displayed
+    Progressive enhancement:
+    - Form works without JavaScript (method="post" fallback)
+    - htmx adds real-time validation on top
 *@
 
 <div id="task-form">
@@ -33,12 +32,34 @@
         hx-swap="outerHTML"
         hx-indicator="#task-loading" 
         class="vstack gap-3">
+
+        @* Antiforgery token - required for all POST requests *@
+        @Html.AntiForgeryToken()
+
+        @* Validation summary for full-form validation *@
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
         <div>
             <label class="form-label" for="title">Task title</label>
-            <input id="title" class="form-control form-control-lg" asp-for="Input.Title"
-                placeholder="e.g., Add htmx to Razor Pages" />
+
+            @* Title input with real-time validation *@
+            <input id="title" 
+                class="form-control form-control-lg" 
+                asp-for="Input.Title"
+                placeholder="e.g., Add htmx to Razor Pages" autocomplete="off" 
+                hx-post="?handler=ValidateTitle"
+                hx-trigger="keyup changed delay:500ms"
+                hx-target="#title-validation"
+                hx-swap="outerHTML"
+                hx-include="closest form" />
+            
             <div class="form-text">Keep it short; we're optimizing for fast feedback loops.</div>
+            
+            @* Standard Razor validation message (shown on full submit) *@
             <span class="text-danger" asp-validation-for="Input.Title"></span>
+
+            @* htmx validation fragment (shown on keystrokes) *@
+            <partial name="Partials/_TitleValidation" model="@((string?)null)" />
         </div>
 
         <div class="d-flex gap-2">
